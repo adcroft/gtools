@@ -20,7 +20,7 @@ function [rgb] = interpcolormap(varargin)
 % interpcolormap('show','jet')	% Display colormap graphically
 %
 % Available maps:
-%  'bwr' 'wbwrw' 'bgr' 'lots' 'gbr' 'jet' 'land' 'water' 'water_beach'
+%  'bwr' 'rwb' 'wbwrw' 'bgr' 'lots' 'gbr' 'bgypr' 'jet' 'land' 'water' 'water_beach'
 % Available modifiers:
 %  'l' 'h' 'll' 'hh' 'c' 'cc'
 %
@@ -36,12 +36,15 @@ RGB=[[0 .2 0];[0 1 0];[1 1 0];[0 1 1];[0 0 1];[1 0 1];[1 0 0];[1 .8 .8]];
 x=x_from_dx([1 1 1 1 1.3 .7 1.3]);
 pow=1;
 show=0;
+reverse=0;
 x0=0;
 for j=1:nargin
  if ischar(varargin{j})
   switch lower(varargin{j})
    case 'show'
     show=1-show;
+   case 'reverse'
+    reverse=1-reverse;
    case 'l'
     pow=2; x0=0;
    case 'h'
@@ -54,7 +57,17 @@ for j=1:nargin
     pow=1.2; x0=0.5;
    case 'cc'
     pow=1.5; x0=0.5;
+   case 'w'
+    pow=0.7; x0=0.5;
+   case 'ww'
+    pow=0.5; x0=0.5;
    case 'bwr'
+    RGB=[[0 0 .1];[0 .2 1];[1 1 1];[1 .2 0];[.3 0 0]];
+    x=x_from_dx([1 .4 .4 1]);
+   case 'rwb'
+    RGB=[[0.3 0 0];[1 .2 0];[1 1 1];[0 .2 1];[0 0 .1]];
+    x=x_from_dx([1 .4 .4 1]);
+   case 'bgwpr'
     RGB=[[0 0 .1];[0 0 1];[0 1 1];[0 1 0];[1 1 1];[1 1 0];[1 0 1];[1 0 0];[.3 0 0]];
     x=x_from_dx([1 1 1 .2 .2 1.3 .7 1]);
    case 'wbwrw'
@@ -63,6 +76,9 @@ for j=1:nargin
    case 'bgr'
     RGB=[[0 0 .1];[0 0 1];[0 1 1];[0 .5 0];[0 1 0];[1 1 0];[1 0 1];[.4 0 .4];[1 0 0];[1 0.9 0.9]];
     x=x_from_dx([1 1 1 1 1 1 1 1 1]);
+   case 'bgypr'
+    RGB=[[0 0 .1];[0 0 1];[0 1 1];[0 .5 0];[0 1 0];[1 1 0];[1 0 1];[.4 0 .4];[1 0 0];[1 0.9 0.9]];
+    x=x_from_dx([1 .8 1 .5 .2 .5 1 1 1]);
    case 'lots'
     RGB=[[0 0 .1];[0 0 1];[0 1 1];[0 .5 0];[0 1 0];[.5 .5 0];[1 1 0];[1 0 1];[.4 0 .4];[1 0 0];[.5 0 0];[1 0.9 0.7]];
     x=x_from_dx([.7 1 1 1 1 1 1 1 1 1 1]);
@@ -71,6 +87,9 @@ for j=1:nargin
     x=x_from_dx([1 1 1 1 1.3 .7 1.3]);
    case 'jet'
     RGB=[[0 0 .5];[0 0 1];[0 1 1];[1 1 0];[1 0 0];[.5 0 0]];
+    x=x_from_dx([0.5 1 1 1 0.5]);
+   case 'rjet'
+    RGB=[[.5 0 0];[1 0 0];[1 1 0];[0 1 1];[0 0 1];[0 0 .5]];
     x=x_from_dx([0.5 1 1 1 0.5]);
    case 'land'
     RGB=[[0 0.2 0];[0 .7 0];[0 1 .3];[1 1 .3];[.7 .5 .5]];
@@ -81,6 +100,20 @@ for j=1:nargin
    case 'water_beach'
     RGB=[[0 0 .1];[.3 .3 .4];[.3 .5 .6];[.1 .2 .3];[.3 .3 .7];[.8 .8 1];[.9 .9 0]];
     x=x_from_dx([1 1 1 1 1 1e-6]);
+   case 'land_water'
+    if nargin==2
+      Hrng=varargin{2};
+      nw=round(-n*Hrng(1)/diff(Hrng))
+      nl=n-nw
+      cmw=interpcolormap('water',nw);
+      cml=interpcolormap('land',nl);
+      rgb=[cmw;cml];
+      colormap(rgb)
+      whos
+      return
+    else
+      error('Oops')
+    end
    otherwise
     error('Unrecognized string')
   end % switch
@@ -103,6 +136,9 @@ end % n
 xc=x-x0; x=abs(xc).^pow.*sign(xc)+x0; x(1)=0; x(end)=1;
 X=0:1/(n-1):1;
 rgb=interp1(x,RGB,X);
+if reverse
+ rgb=rgb(end:-1:1,:);
+end
 colormap(rgb);
 if nargout==0
  clear rgb
@@ -110,6 +146,7 @@ end
 if show
  showcolormap;
 end
+
 
 function [x] = x_from_dx(dx)
 x=cumsum([0 dx]); x=(x-min(x))/(max(x)-min(x));
