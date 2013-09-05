@@ -35,7 +35,7 @@ else
 end
 xlabel('Longitude')
 ylabel('Latitude')
-title(sprintf('%s (time=%g)',varName,t));
+title(sprintf('%s (time=%g)',strrep(varName,'_','\_'),t));
 
 if closenc
  close(nc)
