@@ -53,12 +53,13 @@ end
 if length(x)==1
  h=gcolor(q,e,y);
  xlabel('Y');
+ title(sprintf('%s (x=%g,time=%g)',  regexprep(varName,'_','\\_'), x,t));
 else
  h=gcolor(q,e,x);
  xlabel('X');
+ title(sprintf('%s (y=%g,time=%g)',  regexprep(varName,'_','\\_'), y,t));
 end
 ylabel('Depth (m)')
-title(sprintf('%s (time=%g)',  regexprep(varName,'_','\\_'), t));
 
 if closenc
  close(nc)
