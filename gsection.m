@@ -30,13 +30,19 @@ else
  error('Can not find "e" or "h" as variables in the netcdf file')
 end
 [e,t,rho,y,x]=gread(enc,enm,Time,':',Y,X);
-if length(y)==1 & length(x)==1
- error('One of either X or Y must be multi-valued')
-elseif length(y)>1 & length(x)>1
- error('Either X or Y must be single valued')
-end
-if length(t)>1
- error('Time must be single valued')
+if length(t)==1
+ if length(y)==1 & length(x)==1
+  error('One of either X, Y or T must be multi-valued')
+ elseif length(y)>1 & length(x)>1
+  error('Either X or Y must be single valued if T if single valued')
+ end
+ if length(t)>1
+  error('Time must be single valued')
+ end
+else % length(t)>1
+ if length(y)>1 | length(x)>1
+  error('Both X or Y must be single valued if T is multivalued')
+ end
 end
 [q,t,rho,y,x]=gread(nc,varName,Time,':',Y,X);
 
@@ -50,14 +56,20 @@ if ~isempty(DMIN)
   end
 end
 
-if length(x)==1
- h=gcolor(q,e,y);
- xlabel('Y');
- title(sprintf('%s (x=%g,time=%g)',  regexprep(varName,'_','\\_'), x,t));
-else
- h=gcolor(q,e,x);
- xlabel('X');
- title(sprintf('%s (y=%g,time=%g)',  regexprep(varName,'_','\\_'), y,t));
+if length(t)==1
+ if length(x)==1
+  h=gcolor(q,e,y);
+  xlabel('Y');
+  title(sprintf('%s (x=%g,time=%g)',  regexprep(varName,'_','\\_'), x,t));
+ else
+  h=gcolor(q,e,x);
+  xlabel('X');
+  title(sprintf('%s (y=%g,time=%g)',  regexprep(varName,'_','\\_'), y,t));
+ end
+else % length(t)>1
+ h=gcolor(q',e',t);
+ xlabel('Time');
+ title(sprintf('%s (x=%g,y=%g)',  regexprep(varName,'_','\\_'), x,y));
 end
 ylabel('Depth (m)')
 
